@@ -1,5 +1,6 @@
 //resource describing the grid layout
 
+use std::ops::Mul;
 use bevy::prelude::*;
 use crate::states::{UiStates, UiSystemSet};
 
@@ -37,6 +38,6 @@ pub fn create_grid(mut commands: Commands,world_info :Res<WorldInfo>){
 pub struct GridPlugin;
 impl Plugin for GridPlugin{
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(UiStates::Setup),create_grid.in_set(UiSystemSet::GridSetup));
+        app.add_systems(OnEnter(UiStates::Setup),(create_grid,apply_deferred).in_set(UiSystemSet::GridSetup));
     }
 }

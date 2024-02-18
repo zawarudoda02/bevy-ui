@@ -1,9 +1,17 @@
 use std::path::Path;
+use std::process::Command;
+use std::string::ToString;
+use std::thread;
+use std::time::Duration;
 use bevy::a11y::accesskit::Action::Default;
 use bevy::prelude::*;
 use crate::states::{UiStates, UiSystemSet};
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
+
+const SERVER_IP :&str = "127.0.0.1:42597";
+const PEPE_AI_PATH:&str = "..\\advanced_programming_ai\\target\\debug\\advanced_programming_ai.exe";
+const PEPE_ARGS: [&str;4] = ["--address",SERVER_IP,"--side","128"];
 fn spawn_title_text(commands: &mut Commands)->Entity{
     let text = "Robot UI in Bevy!";
 
@@ -74,7 +82,7 @@ fn begin_main_menu(mut commands: Commands){
     };
     let container = commands.spawn((container_node,ContainerMarker)).id();
     let main_text = spawn_title_text(&mut commands);
-    let button1 = spawn_button(&mut commands,AiExec{name: "Vincenzo Pepe".into(),path: "/".into()});
+    let button1 = spawn_button(&mut commands,AiExec{name: "Vincenzo Pepe".into(),path: PEPE_AI_PATH.into()});
     let button2 = spawn_button(&mut commands,AiExec{name: "Jag".into(),path: "/".into()});
     commands.entity(container).push_children(&[main_text,button1,button2]);
 }
@@ -116,7 +124,10 @@ fn button_system(
         match *interaction{
             Interaction::Pressed => {debug!("aoooo");
 
-                next.set(UiStates::Setup);
+                let command = Command::new(&aiExec.path).args(PEPE_ARGS).spawn();
+                thread::sleep(Duration::from_millis(500));
+
+                next.set(UiStates::AwaitingFirstMessage);
             }
             Interaction::Hovered => {*bg_color = Color::DARK_GRAY.into()}
             Interaction::None => {*bg_color = NORMAL_BUTTON .into()}

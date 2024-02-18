@@ -9,7 +9,7 @@ const TILE_SIZE:Vec2 =  Vec2::new(32.0,32.0);
 const COLUMNS:usize= 6;
 const ROWS: usize = 5;
 
-struct SpriteMapPlugin;
+pub struct SpriteMapPlugin;
 impl Plugin for SpriteMapPlugin{
     fn build(&self, app: &mut App) {
         app.add_systems(Startup,(load_assets).in_set(UiSystemSet::UiStartup));

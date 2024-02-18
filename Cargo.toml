@@ -9,3 +9,5 @@ edition = "2021"
 ui_and_robot_communication = {path="../ui_and_robot_communication"}
 bevy = "0.12.0"
 robotics_lib = {version = "0.1.8" , registry = "kellnr"}
+strum ={ version = "0.26" }
+strum_macros = "0.25.3"
