@@ -24,7 +24,7 @@ pub struct WorldTiles{
 }
 #[derive(Default,Resource)]
 pub struct CurrentWeather{
-    conditions: Option<EnvironmentalConditions>
+    pub conditions: Option<EnvironmentalConditions>
 }
 //function to be run after first messages retrieved
 fn get_world_info(mut commands: Commands,mut ticks:  ResMut<Ticks>){

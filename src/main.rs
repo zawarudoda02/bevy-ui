@@ -10,9 +10,11 @@ mod lifecycle;
 mod interface;
 
 
+use std::process;
 use std::process::Command;
+use bevy::app::AppExit;
 use bevy::DefaultPlugins;
-use bevy::prelude::App;
+use bevy::prelude::{App, EventWriter, Input, KeyCode, Res, ResMut, Update};
 use ui_and_robot_communication;
 use crate::asset_loader::SpriteMapPlugin;
 use crate::camera::CameraPlugin;
@@ -22,7 +24,7 @@ use crate::lifecycle::LifeCyclePlugin;
 use crate::main_menu::MainMenuPlugin;
 use crate::robot::backpack::BackPackPlugin;
 use crate::robot::res::RobotPlugin;
-use crate::server::ServerPlugin;
+use crate::server::{ServerPlugin};
 use crate::states::{SchedulePlugin, UiStates};
 use crate::world::res::WorldPlugin;
 use crate::world::tiles::TilesPlugin;
@@ -59,7 +61,9 @@ fn main() {
         .add_plugins(CameraPlugin)
         .add_plugins(MainMenuPlugin)
         .add_plugins(UiPlugin)
+
         .run();
 
     println!("Hello, world!");
 }
+

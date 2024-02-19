@@ -1,29 +1,30 @@
 use std::collections::VecDeque;
 use std::io::{Error, ErrorKind};
-use std::sync::mpsc::{channel, Receiver, RecvError};
+use std::process::Child;
+use std::sync::mpsc::{channel, Receiver, RecvError, Sender};
 use std::thread;
 use std::thread::JoinHandle;
 use bevy::prelude::*;
 use ui_and_robot_communication::{CommError, Message, Server, Tick};
 use crate::states::{UiStates, UiSystemSet};
 
-#[test]
-fn test(){
 
-}
 
 
 pub struct UiServer{
     pub receiver: Receiver<Result<Tick,CommError>>,
-    thread: JoinHandle<()>
+
+    thread: Option<JoinHandle<()>>
 }
 impl UiServer{
     fn new()-> Self{
         let (tx,rx) = channel();
+
         let th = thread::spawn(move || {
             let mut  server = Server::new();
             server.begin_listening().expect("Client can't be accepted");
             loop {
+
                 let a = server.get_world_info();
                 match a {
                     Ok(x) => {tx.send(Ok(x)).expect("Send between threads failed"); break;}
@@ -31,24 +32,29 @@ impl UiServer{
                 }
             }
             loop {
+
                 let a = server.get_tick();
+
                 match a{
                     Ok(x) => {tx.send(Ok(x)).expect("Send between threads failed");}
                     Err(e) => {
                         if let CommError::DeserializationError(_) = e {
                             break;
                         }
-                        tx.send(Err(e)).expect("Send between threads failed");
+                        tx.send(Err(e));
                     }
                 }
             }
         } );
         Self{
             receiver:rx,
-            thread: th
+
+            thread: Some(th)
         }
     }
+
 }
+
 
 
 
@@ -77,10 +83,9 @@ fn retrieve_ticks(server: NonSend<UiServer>,mut ticks: ResMut<Ticks>,state: Res<
                UiStates::AwaitingFirstMessage => {info!("We are in state: {:?}",state);next_state.set(UiStates::Setup)}
                _ =>{}
            }
-           info!("state : {:?},message: {:?}",state, ticks);
+
        }else {
-           if let Err(CommError::DeserializationError(_)) = x{
-           }
+
            info!("{:?}",x);
        }
     }

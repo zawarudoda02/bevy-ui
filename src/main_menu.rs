@@ -5,13 +5,16 @@ use std::thread;
 use std::time::Duration;
 use bevy::a11y::accesskit::Action::Default;
 use bevy::prelude::*;
+
 use crate::states::{UiStates, UiSystemSet};
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
-
+/*
 const SERVER_IP :&str = "127.0.0.1:42597";
 const PEPE_AI_PATH:&str = "..\\advanced_programming_ai\\target\\debug\\advanced_programming_ai.exe";
 const PEPE_ARGS: [&str;4] = ["--address",SERVER_IP,"--side","128"];
+
+ */
 fn spawn_title_text(commands: &mut Commands)->Entity{
     let text = "Robot UI in Bevy!";
 
@@ -82,8 +85,8 @@ fn begin_main_menu(mut commands: Commands){
     };
     let container = commands.spawn((container_node,ContainerMarker)).id();
     let main_text = spawn_title_text(&mut commands);
-    let button1 = spawn_button(&mut commands,AiExec{name: "Vincenzo Pepe".into(),path: PEPE_AI_PATH.into()});
-    let button2 = spawn_button(&mut commands,AiExec{name: "Jag".into(),path: "/".into()});
+    let button1 = spawn_button(&mut commands,AiExec{name: "Vincenzo Pepe".into(), windows_script: ".\\pepe.bat".into(),linux_script:"./pepe.sh".into()});
+    let button2 = spawn_button(&mut commands,AiExec{name: "Jag".into(),windows_script: "\\".into(),linux_script: "./".into()});
     commands.entity(container).push_children(&[main_text,button1,button2]);
 }
 pub struct MainMenuPlugin;
@@ -101,9 +104,11 @@ impl Plugin for MainMenuPlugin{
 #[derive(Component)]
 pub struct AiExec{
     pub name:String,
-    pub path:  String
+    pub windows_script: String,
+    pub linux_script: String
 }
 fn button_system(
+    mut commands: Commands,
     mut interaction_query: Query<
         (
             Entity,
@@ -119,12 +124,20 @@ fn button_system(
         mut next: ResMut<NextState<UiStates>>
 
 ){
-    for(e,interaction, mut bg_color, children,aiExec) in &mut interaction_query{
+    for(e,interaction, mut bg_color, children,ai_exec) in &mut interaction_query{
 
         match *interaction{
             Interaction::Pressed => {debug!("aoooo");
 
-                let command = Command::new(&aiExec.path).args(PEPE_ARGS).spawn();
+                let command = {
+                    if cfg!(target_os = "windows"){
+                        Command::new(&ai_exec.windows_script).spawn()
+                    }
+                    else{
+                        Command::new(&ai_exec.linux_script).spawn()
+                    }
+                };
+
                 thread::sleep(Duration::from_millis(500));
 
                 next.set(UiStates::AwaitingFirstMessage);

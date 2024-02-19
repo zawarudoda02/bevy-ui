@@ -33,7 +33,7 @@ impl BackPack{
   pub fn get(&mut self, c: Content)-> Option<usize>{
     self.contents.get(&c.to_default()).map(|x| *x)
   }
-  pub fn get_all(&mut self)->Vec<(Content,usize)>{
+  pub fn get_all(&self)->Vec<(Content,usize)>{
     self.contents.clone().into_iter().collect()
   }
 }

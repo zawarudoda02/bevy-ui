@@ -96,7 +96,7 @@ fn setup_content(mut commands: Commands,query: Query<(Entity, &Transform),With<T
 
 }
 
-pub fn update_tiles(mut world_tiles: ResMut<WorldTiles>,
+fn update_tiles(mut world_tiles: ResMut<WorldTiles>,
                     mut curr_tick: ResMut<CurrentTick>,
                     mut param_set: ParamSet<(
                     Query<(&mut TextureAtlasSprite,&Children), (With<TileMarker>)>,
