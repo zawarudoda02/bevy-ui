@@ -1,30 +1,31 @@
-mod world;
-mod states;
-mod main_menu;
-mod camera;
-mod server;
-mod robot;
-mod grid;
 mod asset_loader;
-mod lifecycle;
+mod camera;
+mod grid;
 mod interface;
+mod lifecycle;
+mod main_menu;
+mod robot;
+mod server;
+mod states;
+mod world;
 
-
+use bevy::app::AppExit;
+use bevy::prelude::{App, EventWriter, Input, KeyCode, Res, ResMut, Update};
+use bevy::DefaultPlugins;
+use bevy_mouse_tracking_plugin::prelude::*;
 use std::process;
 use std::process::Command;
-use bevy::app::AppExit;
-use bevy::DefaultPlugins;
-use bevy::prelude::{App, EventWriter, Input, KeyCode, Res, ResMut, Update};
 use ui_and_robot_communication;
+
 use crate::asset_loader::SpriteMapPlugin;
 use crate::camera::CameraPlugin;
 use crate::grid::GridPlugin;
-use crate::interface::UiPlugin;
+use crate::interface::InterfacePlugin;
 use crate::lifecycle::LifeCyclePlugin;
 use crate::main_menu::MainMenuPlugin;
 use crate::robot::backpack::BackPackPlugin;
 use crate::robot::res::RobotPlugin;
-use crate::server::{ServerPlugin};
+use crate::server::ServerPlugin;
 use crate::states::{SchedulePlugin, UiStates};
 use crate::world::res::WorldPlugin;
 use crate::world::tiles::TilesPlugin;
@@ -43,11 +44,15 @@ PROFIT
  */
 
 fn main() {
-    println!("{:?}",Command::new("..\\advanced_programming_ai-main\\target\\debug\\advanced_programming_ai.exe"));
+    println!(
+        "{:?}",
+        Command::new(
+            "..\\advanced_programming_ai-main\\target\\debug\\advanced_programming_ai.exe"
+        )
+    );
     App::new()
-
-
         .add_plugins(DefaultPlugins)
+        .add_plugins(MousePosPlugin)
         .add_state::<UiStates>()
         .add_plugins(SpriteMapPlugin)
         .add_plugins(SchedulePlugin)
@@ -60,10 +65,8 @@ fn main() {
         .add_plugins(BackPackPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(MainMenuPlugin)
-        .add_plugins(UiPlugin)
-
+        .add_plugins(InterfacePlugin)
         .run();
 
     println!("Hello, world!");
 }
-

@@ -1,6 +1,5 @@
-pub mod res;
 pub mod backpack;
+pub mod res;
 
-use bevy::prelude::*;
 use crate::world::tiles::GridPosition;
-
+use bevy::prelude::*;
