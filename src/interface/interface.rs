@@ -88,7 +88,7 @@ impl Plugin for UiPlugin {
     }
 }
 
-fn simulation_finished(mut commands: Commands, mut query: Query<Entity, With<ViewPortMarker>>) {
+fn simulation_finished(mut commands: Commands, query: Query<Entity, With<ViewPortMarker>>) {
     let entity = query.get_single().unwrap();
     commands.entity(entity).with_children(|parent| {
         let mut text_bundle = TextBundle::from_section(

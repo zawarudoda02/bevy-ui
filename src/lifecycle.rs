@@ -19,11 +19,13 @@ use bevy::prelude::{
     error, info, warn, IntoSystemConfigs, NextState, OnEnter, ResMut, Resource, Update,
 };
 use std::iter::Peekable;
-use std::ops::{Deref, DerefMut};
+
 use std::vec::IntoIter;
-use ui_and_robot_communication::Message::LibError;
+
 use ui_and_robot_communication::{LibEvent, Message, Tick};
 
+
+///Iterator over the current tick being processed
 #[derive(Debug, Default, Resource)]
 pub struct CurrentTick {
     tick: Option<Peekable<IntoIter<Message>>>,
@@ -47,12 +49,14 @@ impl CurrentTick {
 fn begin_lifecycle(mut next: ResMut<NextState<UiStates>>) {
     next.set(UiStates::Lifecycle);
 }
+
+///System that checks if the current tick is empty, and refills it if necessary
 fn update_tick(
     mut ticks: ResMut<Ticks>,
     mut curr_tick: ResMut<CurrentTick>,
-    mut next_state: ResMut<NextState<UiStates>>,
+    _next_state: ResMut<NextState<UiStates>>,
 ) {
-    warn!("I'm in system 'update_tick', trying to parse the message");
+
     if curr_tick.peek().is_none() {
         if let Some(x) = ticks.pop() {
             warn!("Reloaded tick!!");
@@ -60,6 +64,8 @@ fn update_tick(
         }
     }
 }
+
+///System that checks for "end of tick" or "terminated" messages
 fn tick_control_flow(
     mut curr_tick: ResMut<CurrentTick>,
     mut next_state: ResMut<NextState<UiStates>>,
@@ -85,6 +91,7 @@ fn tick_control_flow(
     curr_tick.pop();
 }
 
+///System that checks for error messages
 fn error_messages(mut curr_tick: ResMut<CurrentTick>) {
     match curr_tick.peek() {
         None => return,

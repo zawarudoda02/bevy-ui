@@ -9,13 +9,13 @@ mod server;
 mod states;
 mod world;
 
-use bevy::app::AppExit;
-use bevy::prelude::{App, EventWriter, Input, KeyCode, Res, ResMut, Update};
+
+use bevy::prelude::{App, Msaa};
 use bevy::DefaultPlugins;
 use bevy_mouse_tracking_plugin::prelude::*;
-use std::process;
+
 use std::process::Command;
-use ui_and_robot_communication;
+
 
 use crate::asset_loader::SpriteMapPlugin;
 use crate::camera::CameraPlugin;
@@ -51,6 +51,7 @@ fn main() {
         )
     );
     App::new()
+        .insert_resource(Msaa::Sample2)
         .add_plugins(DefaultPlugins)
         .add_plugins(MousePosPlugin)
         .add_state::<UiStates>()
@@ -70,3 +71,4 @@ fn main() {
 
     println!("Hello, world!");
 }
+

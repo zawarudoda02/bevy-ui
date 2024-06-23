@@ -1,18 +1,18 @@
 use bevy::app::App;
-use bevy::math::UVec2;
+
 use bevy::prelude::{
-    apply_deferred, info, warn, Commands, Entity, IntoSystemConfigs, NonSend, OnEnter, Plugin, Res,
-    ResMut, Resource, Update, Visibility, World,
+    apply_deferred, info, warn, Commands, Entity, IntoSystemConfigs, OnEnter, Plugin, Res,
+    ResMut, Resource, Update,
 };
-use bevy::sprite::SpriteBundle;
+
 
 use crate::lifecycle::CurrentTick;
 use crate::robot::res::RobotPosition;
-use crate::server::{Ticks, UiServer};
+use crate::server::{Ticks};
 use crate::states::{LifeCycleSets, UiStates, UiSystemSet};
-use crate::world::tiles::{GridPosition, TileBundle};
-use bevy::utils::default;
-use robotics_lib::world::environmental_conditions::{EnvironmentalConditions, WeatherType};
+
+
+use robotics_lib::world::environmental_conditions::{EnvironmentalConditions};
 use robotics_lib::world::tile::Tile;
 use ui_and_robot_communication::{LibEvent, Message};
 
@@ -60,9 +60,9 @@ fn get_world_info(mut commands: Commands, mut ticks: ResMut<Ticks>) {
 fn create_tile_map(mut commands: Commands, world_info: Res<WorldInfo>) {
     let mut vec = Vec::with_capacity(world_info.edge_size);
 
-    for col in 0..world_info.edge_size {
+    for _col in 0..world_info.edge_size {
         let mut v = Vec::with_capacity(world_info.edge_size);
-        for row in 0..world_info.edge_size {
+        for _row in 0..world_info.edge_size {
             v.push((None, commands.spawn_empty().id()));
         }
         vec.push(v);

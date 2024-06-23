@@ -2,12 +2,16 @@
 
 use crate::states::{UiStates, UiSystemSet};
 use bevy::prelude::*;
-use std::ops::Mul;
+
 
 use crate::world::res::WorldInfo;
 
 const TILE_SIZE: f32 = 32.0;
 const BOTTOM_LEFT: Vec2 = Vec2::ZERO;
+
+
+///An abstract representation of the simulation's tile grid.
+///Helpful for computing the pixel position of the tiles in the simulation world
 #[derive(Resource)]
 pub struct Grid {
     grid_edge_size: u32,
@@ -20,11 +24,15 @@ impl Grid {
             rect,
         }
     }
+
+    ///given the column and the row of a tile, it gives the 2D vector of it's position in simulation space
     pub fn compute_position(&self, col: u32, row: u32) -> Vec2 {
         let tile_side = self.rect.width() / self.grid_edge_size as f32;
         return ((Vec2::new(col as f32, row as f32)) * tile_side)
             + Vec2::new(tile_side / 2., tile_side / 2.);
     }
+
+
     pub fn compute_inverse_position(&self, vec: Vec2) -> Option<(u32, u32)> {
         let pos = ((vec - BOTTOM_LEFT) / (self.rect.width() / self.grid_edge_size as f32))
             .floor()

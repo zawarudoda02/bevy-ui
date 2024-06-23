@@ -1,13 +1,13 @@
-use crate::states::UiStates::Setup;
-use crate::states::UiSystemSet::{TilesSetup, UiStartup};
+
+
 use bevy::app::{App, FixedUpdate, Plugin};
-use bevy::prelude::IntoSystemConfigs;
+use bevy::prelude::{EventReader, IntoSystemConfigs, KeyCode, NextState, Res, ResMut, State};
 use bevy::prelude::{
-    apply_deferred, in_state, info, Condition, IntoSystemSetConfigs, NextState, OnEnter, OnExit,
-    ResMut, Schedule, Startup, States, SystemSet, Update,
+    in_state, Condition, IntoSystemSetConfigs, OnEnter, OnExit, Startup, States, SystemSet, Update,
 };
 use bevy::time::common_conditions::on_timer;
 use std::time::Duration;
+use bevy::input::Input;
 
 //Represents the states of the ui
 #[derive(Default, Debug, Eq, PartialEq, Clone, Copy, Hash, States)]
@@ -20,6 +20,9 @@ pub enum UiStates {
     End,
 }
 
+///
+///System sets for a clean execution of the program
+///
 #[derive(Debug, Clone, Copy, Eq, PartialEq, SystemSet, Hash)]
 pub enum UiSystemSet {
     //here will go the assetloader initialization, the server starting to listen etc
@@ -47,7 +50,11 @@ pub enum LifeCycleSets {
     Errors,
     ControlFlow,
 }
-
+fn end_it(keys: Res<Input<KeyCode>>, mut state: ResMut<NextState<UiStates>>){
+    if keys.just_pressed(KeyCode::Q){
+        state.set(UiStates::End);
+    }
+}
 pub struct SchedulePlugin;
 impl Plugin for SchedulePlugin {
     fn build(&self, app: &mut App) {
@@ -83,6 +90,7 @@ impl Plugin for SchedulePlugin {
                 )
                     .chain()
                     .in_set(UiSystemSet::LifeCycle),
-            );
+            )
+            .add_systems(Update,end_it);
     }
 }

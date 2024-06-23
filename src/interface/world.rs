@@ -2,13 +2,13 @@ use crate::asset_loader::SpriteSheet;
 use crate::grid::Grid;
 use crate::states::{LifeCycleSets, UiStates};
 use crate::world::res::{CurrentWeather, WorldTiles};
-use crate::world::tiles::{GridPosition, TileMarker};
-use bevy::input::mouse::MouseMotion;
-use bevy::prelude::Display::Flex;
+
+
+
 use bevy::prelude::*;
-use bevy::window::PrimaryWindow;
-use bevy_mouse_tracking_plugin::{MousePos, MousePosWorld};
-use robotics_lib::world::tile::{Content, Tile};
+
+use bevy_mouse_tracking_plugin::{MousePosWorld};
+use robotics_lib::world::tile::{Content};
 
 #[derive(Component)]
 struct WeatherUiMarker;
@@ -222,7 +222,7 @@ fn update_hovered(
                 format!("{:?}", t.elevation),
             ),
         };
-        let mut text = format!(
+        let text = format!(
             "position: {:?} \n tile type: {} \n content: {} \n elevation: {}",
             (col, row),
             tiletype,

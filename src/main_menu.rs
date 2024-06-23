@@ -1,20 +1,15 @@
-use bevy::a11y::accesskit::Action::Default;
+
 use bevy::prelude::*;
-use std::path::Path;
+
 use std::process::Command;
-use std::string::ToString;
+
 use std::thread;
 use std::time::Duration;
 
 use crate::states::{UiStates, UiSystemSet};
 
 const NORMAL_BUTTON: Color = Color::rgb(0.15, 0.15, 0.15);
-/*
-const SERVER_IP :&str = "127.0.0.1:42597";
-const PEPE_AI_PATH:&str = "..\\advanced_programming_ai\\target\\debug\\advanced_programming_ai.exe";
-const PEPE_ARGS: [&str;4] = ["--address",SERVER_IP,"--side","128"];
 
- */
 fn spawn_title_text(commands: &mut Commands) -> Entity {
     let text = "Robot UI in Bevy!";
 
@@ -102,9 +97,25 @@ fn begin_main_menu(mut commands: Commands) {
             linux_script: "./".into(),
         },
     );
+    let button3 = spawn_button(
+        &mut commands,
+        AiExec{
+            name: "World Gen Showcase".into(),
+            windows_script:".\\world_gen_showcase.bat".into(),
+            linux_script: "./world_gen_showcase.sh".into()
+        }
+    );
+    let button4 = spawn_button(
+        &mut commands,
+        AiExec{
+            name: "Tool Showcase".into(),
+            windows_script:".\\tool_showcase.bat".into(),
+            linux_script: "./tool_showcase.sh".into()
+        }
+    );
     commands
         .entity(container)
-        .push_children(&[main_text, button1, button2]);
+        .push_children(&[main_text, button1, button2,button3,button4]);
 }
 pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {
@@ -121,6 +132,8 @@ impl Plugin for MainMenuPlugin {
     }
 }
 
+
+///struct that contains info about executables, which are to be called in a button
 #[derive(Component)]
 pub struct AiExec {
     pub name: String,
@@ -128,7 +141,7 @@ pub struct AiExec {
     pub linux_script: String,
 }
 fn button_system(
-    mut commands: Commands,
+    _commands: Commands,
     mut interaction_query: Query<
         (
             Entity,
@@ -141,12 +154,12 @@ fn button_system(
     >,
     mut next: ResMut<NextState<UiStates>>,
 ) {
-    for (e, interaction, mut bg_color, children, ai_exec) in &mut interaction_query {
+    for (_e, interaction, mut bg_color, _children, ai_exec) in &mut interaction_query {
         match *interaction {
             Interaction::Pressed => {
                 debug!("aoooo");
 
-                let command = {
+                let _command = {
                     if cfg!(target_os = "windows") {
                         Command::new(&ai_exec.windows_script).spawn()
                     } else {

@@ -49,14 +49,14 @@ pub fn spawn_backpack_ui() -> Box<dyn FnOnce(&mut ChildBuilder)> {
     let text = "Backpack";
     Box::new(move |parent| {
         parent.spawn(
-            (TextBundle::from_section(
+            TextBundle::from_section(
                 text,
                 TextStyle {
                     font_size: 20.0,
                     color: Color::WHITE,
                     ..default()
                 },
-            )),
+            ),
         );
         parent
             .spawn((
@@ -130,7 +130,7 @@ pub fn update_backpack_ui(
     mut query: Query<(&mut Text, &mut BackpackElementContent), With<BackpackElementMarker>>,
 ) {
     let backpack_contents = backpack.get_all();
-    for (mut text, mut content) in &mut query {
+    for (mut text, content) in &mut query {
         for (i, quantity) in backpack_contents.iter() {
             if content.eq(i.clone()) {
                 text.sections[0].value = content.print(*quantity);

@@ -15,7 +15,7 @@ pub struct RobotEnergy {
     pub energy: usize,
 }
 
-pub fn setup_robot(mut commands: Commands, position: Res<RobotPosition>) {
+pub fn setup_robot(mut commands: Commands, _position: Res<RobotPosition>) {
     commands.insert_resource(RobotEnergy {
         energy: DEFAULT_ENERGY,
     })

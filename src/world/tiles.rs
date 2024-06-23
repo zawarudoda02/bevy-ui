@@ -4,7 +4,7 @@ use crate::lifecycle::CurrentTick;
 use crate::states::{LifeCycleSets, UiStates, UiSystemSet};
 use crate::world::res::WorldTiles;
 use bevy::prelude::*;
-use robotics_lib::world::tile::{Content, Tile};
+use robotics_lib::world::tile::{Content};
 use ui_and_robot_communication::{LibEvent, Message};
 
 #[derive(Bundle)]
@@ -28,8 +28,7 @@ impl TileBundle {
         }
     }
 }
-//TODO setup tiles
-//TODO update tiles sprite when it changes
+
 pub fn setup_tiles(
     mut commands: Commands,
     map: Res<WorldTiles>,
@@ -39,7 +38,7 @@ pub fn setup_tiles(
     info!("Im going to setup THE TILES!!!");
     for (col, col_vec) in map.vec.iter().enumerate() {
         for (row, (_, e)) in col_vec.iter().enumerate() {
-            info!("setting up tile: {:?}", e);
+            //info!("setting up tile: {:?}", e);
             commands.get_entity(*e).unwrap().insert(TileBundle::new(
                 SpriteSheetBundle {
                     sprite: TextureAtlasSprite::new(sprite_sheet.get_tiletype_sprite_index(None)),
@@ -54,6 +53,7 @@ pub fn setup_tiles(
             ));
         }
     }
+    info!("tiles completely setup!!");
 }
 pub struct TilesPlugin;
 impl Plugin for TilesPlugin {
@@ -87,8 +87,8 @@ fn setup_content(
     query: Query<(Entity, &Transform), With<TileMarker>>,
     sprite_sheet: Res<SpriteSheet>,
 ) {
-    for (e, t) in &query {
-        info!("setting up content for {:?}", e);
+    for (e, _t) in &query {
+        //info!("setting up content for {:?}", e);
         let content = commands
             .spawn(ContentBundle::new(SpriteSheetBundle {
                 sprite: TextureAtlasSprite::new(
@@ -105,14 +105,15 @@ fn setup_content(
 
         commands.entity(e).push_children(&[content]);
     }
+    info!("content completely setup!!");
 }
 
 fn update_tiles(
     mut world_tiles: ResMut<WorldTiles>,
     mut curr_tick: ResMut<CurrentTick>,
     mut param_set: ParamSet<(
-        Query<(&mut TextureAtlasSprite, &Children), (With<TileMarker>)>,
-        Query<&mut TextureAtlasSprite, (With<ContentMarker>)>,
+        Query<(&mut TextureAtlasSprite, &Children), With<TileMarker>>,
+        Query<&mut TextureAtlasSprite, With<ContentMarker>>,
     )>,
     sprite_sheet: Res<SpriteSheet>,
 ) {
@@ -123,19 +124,7 @@ fn update_tiles(
         Some(message) => {
             match message {
                 Message::LibEvent(LibEvent::DiscoveredTiles(x)) => {
-                    /*
-                    for (tile,(col,row)) in x {
-                        let (col,row) = (*col,*row);
-                        world_tiles.vec[col][row].0 =Some( tile.clone());
-                        let entity = world_tiles.vec[col][row].1;
 
-                        let (mut sprite,children) = tiles_query.get_mut(entity).unwrap();
-
-                        sprite.index = sprite_sheet.get_tiletype_sprite_index(Some(tile.tile_type.clone()));
-                        let mut content_sprite = content_query.get_mut(*children.first().unwrap()).unwrap();
-                        content_sprite.index = sprite_sheet.get_content_sprite_index(tile.content.clone());
-                    }
-                    */
                     warn!("I've discovered some tiles! i'm going to update them!!");
                     for (tile, (col, row)) in x {
                         let (col, row) = (*col, *row);
@@ -156,14 +145,8 @@ fn update_tiles(
                 }
 
                 Message::LibEvent(LibEvent::TileContentUpdated(tile, (col, row))) => {
-                    /*
-                    let entity: Entity = world_tiles.vec[*col][*row].1;
-                    world_tiles.vec[*col][*row].0 = Some(tile.clone());
-                    let (a,b)= tiles_query.get(entity).unwrap();
-                    let mut content_sprite = content_query.get_mut(*b.first().unwrap()).unwrap();
-                    content_sprite.index = sprite_sheet.get_content_sprite_index(tile.content.clone());
-                    */
-                    warn!("The content of a tile has been updated! wish me luck!!");
+
+                    warn!("The content of a tile has been updated!");
                     let (col, row) = (*col, *row);
                     world_tiles.vec[col][row].0 = Some(tile.clone());
                     let entity = world_tiles.vec[col][row].1;

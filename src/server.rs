@@ -1,26 +1,32 @@
-use crate::states::{UiStates, UiSystemSet};
+use crate::states::{UiStates};
 use bevy::prelude::*;
 use std::collections::VecDeque;
-use std::io::{Error, ErrorKind};
-use std::process::Child;
-use std::sync::mpsc::{channel, Receiver, RecvError, Sender};
+
+
+use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 use std::thread::JoinHandle;
-use ui_and_robot_communication::{CommError, Message, Server, Tick};
+use ui_and_robot_communication::{CommError, Server, Tick};
 
+
+/// Resource containing the tcp server thread and a receiver
 pub struct UiServer {
     pub receiver: Receiver<Result<Tick, CommError>>,
-
+    pub end_sender: Sender<()>,
     thread: Option<JoinHandle<()>>,
 }
 impl UiServer {
     fn new() -> Self {
         let (tx, rx) = channel();
-
+        let (end_sender, end_receiver) = channel::<()>();
         let th = thread::spawn(move || {
             let mut server = Server::new();
             server.begin_listening().expect("Client can't be accepted");
             loop {
+                if let Ok(_) = end_receiver.try_recv(){
+                    server.stop_listening();
+                    return;
+                }
                 let a = server.get_world_info();
                 match a {
                     Ok(x) => {
@@ -31,6 +37,10 @@ impl UiServer {
                 }
             }
             loop {
+                if let Ok(_) = end_receiver.try_recv(){
+                    server.stop_listening();
+                    return;
+                }
                 let a = server.get_tick();
 
                 match a {
@@ -48,12 +58,14 @@ impl UiServer {
         });
         Self {
             receiver: rx,
-
+            end_sender,
             thread: Some(th),
         }
     }
 }
 
+///
+/// A queue containing the ticks, gathered using "retrieve ticks"
 #[derive(Debug, Resource)]
 pub struct Ticks {
     ticks: VecDeque<Tick>,
@@ -72,6 +84,8 @@ impl Ticks {
     }
 }
 
+
+///System that retrieves the ticks from the server and inserts them in the queue
 fn retrieve_ticks(
     server: NonSend<UiServer>,
     mut ticks: ResMut<Ticks>,
@@ -95,6 +109,9 @@ fn retrieve_ticks(
 
     /*info!("No message to be found");*/
 }
+fn close_connection(server: NonSend<UiServer>){
+    server.end_sender.send(());
+}
 pub struct ServerPlugin;
 impl Plugin for ServerPlugin {
     fn build(&self, app: &mut App) {
@@ -103,6 +120,8 @@ impl Plugin for ServerPlugin {
             .add_systems(
                 Update,
                 retrieve_ticks.run_if(not(in_state(UiStates::MainMenu))),
-            );
+            )
+            .add_systems(OnEnter(UiStates::End),close_connection);
+
     }
 }

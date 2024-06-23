@@ -1,11 +1,11 @@
 use crate::robot::res::RobotMarker;
 use crate::states::{UiStates, UiSystemSet};
-use bevy::input::mouse::MouseWheel;
+
 use bevy::prelude::*;
-use bevy::reflect::erased_serde::__private::serde::de::value::UsizeDeserializer;
-use bevy::render::camera::Viewport;
+
+
 use bevy_mouse_tracking_plugin::prelude::InitWorldTracking;
-use bevy_mouse_tracking_plugin::{MainCamera, MousePosWorld};
+use bevy_mouse_tracking_plugin::{MainCamera};
 
 const CAMERA_SPEED: f32 = 32.0;
 pub struct CameraPlugin;
@@ -46,17 +46,18 @@ fn center_on_robot(
 fn follow_robot(
     query: Query<&Transform, With<RobotMarker>>,
     mut camera_query: Query<&mut Transform, (With<CameraMarker>, Without<RobotMarker>)>,
-    time: Res<Time>,
+    _time: Res<Time>,
 ) {
     let mut camera = camera_query.get_single_mut().unwrap();
     let robot = query.get_single().unwrap();
     let distance = robot.translation.distance(camera.translation);
     if distance > 1.0 {
-        let vector = (robot.translation - camera.translation).normalize_or_zero();
+        let _vector = (robot.translation - camera.translation).normalize_or_zero();
 
         camera.translation = camera.translation.lerp(robot.translation, 0.1);
     }
 }
+
 
 fn switch_camera_mode(
     current_state: Res<State<CameraState>>,
